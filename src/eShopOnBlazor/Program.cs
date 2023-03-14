@@ -7,6 +7,17 @@ using eShopOnBlazor;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddSystemWebAdapters()
+ .AddRemoteAppClient(options =>
+ {
+  options.RemoteAppUrl = new(builder.Configuration["ReverseProxy:Clusters:fallbackCluster:Destinations:fallbackApp:Address"]);
+  options.ApiKey = "SuperSecretApiKeyThatShouldReallyBeStoredSomewhereSafe";
+ })
+ .AddAuthenticationClient(true);
+
+builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
 // add services
 
 builder.Services.AddRazorPages();
@@ -48,11 +59,12 @@ app.Use((ctx, next) =>
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSystemWebAdapters();
 
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapBlazorHub();
-    endpoints.MapFallbackToPage("/_Host");
+    endpoints.MapBlazorPages("/_Host");
 });
 
 ConfigDataBase(app);
@@ -69,5 +81,8 @@ static void ConfigDataBase(IApplicationBuilder app)
         }
     }
 }
+app.MapReverseProxy();
+
+app.UseAuthentication();
 
 app.Run();

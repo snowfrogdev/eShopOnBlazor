@@ -33,6 +33,14 @@ namespace eShopLegacyWebForms
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             ConfigureContainer();
             ConfigDataBase();
+            
+            // Code needed to allow the ASP.NET Core app to use the ASP.NET app for auth
+            SystemWebAdapterConfiguration.AddSystemWebAdapters(this)
+             .AddProxySupport(options => options.UseForwardedHeaders = true)
+             .AddRemoteAppServer(options => {
+              options.ApiKey = "SuperSecretApiKeyThatShouldReallyBeStoredSomewhereSafe";
+             })
+             .AddAuthenticationServer(); 
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
 
 <header class="navbar navbar-light navbar-static-top">
     <div class="esh-header-brand">
@@ -6,6 +7,25 @@
             <img src="/images/brand.png" />
         </a>
     </div>
+    <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
+                    <AuthorizeView>
+                        <NotAuthorized>
+                            <ul class="navbar-nav navbar-right">
+                                <li><a class="nav-link" href="/Account/Register">Register</a></li>
+                                <li><a class="nav-link" href="/Account/Login">Log in</a></li>
+                            </ul>
+                        </NotAuthorized>
+                        <Authorized>
+                            <ul class="navbar-nav navbar-right">
+                                <li><a class="nav-link" href="/Account/Manage" title="Manage your account">Hello, @context.User.Identity?.Name !</a></li>
+                                <li>
+                                    @*<asp:LoginStatus runat="server" CssClass="nav-link" LogoutAction="Redirect" LogoutText="Log off" LogoutPageUrl="~/" OnLoggingOut="Unnamed_LoggingOut" />*@
+                                    <a class="nav-link" href="/Account/Logout">Log off</a>
+                                </li>
+                            </ul>
+                        </Authorized>
+                    </AuthorizeView>
+                </div>
 </header>
 
 <section class="esh-app-hero">
@@ -40,6 +60,9 @@
     {
         SessionStartTime = DateTime.Now;
     }
+
+ [CascadingParameter]
+ private Task<AuthenticationState>? authenticationState { get; set; }
 }
 
 
